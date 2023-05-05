@@ -1,2 +1,1 @@
-# cryptodonat
- 
+Donation alerts for cryptocurrencies

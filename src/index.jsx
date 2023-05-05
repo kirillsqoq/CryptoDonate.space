@@ -1,50 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { addDoc, collection, getDocs, getFirestore } from "firebase/firestore";
-import { useCollection } from "react-firebase-hooks/firestore";
+import { getFirestore } from "firebase/firestore";
+
+import Favicon from "react-favicon";
 // eslint-disable-next-line
-import "swiper/css/bundle";
 import "./styles.css";
+import { useStore } from "./store";
 
-import Login from "./pages/Login.jsx";
+import Login from "./pages/Login/Login.jsx";
 import { initializeApp } from "firebase/app";
-
 import { getAuth } from "firebase/auth";
-import WorkSpace from "./pages/WorkSpace";
-
-import { RequireAuth } from "./hoc/RequireAuth";
-import { RequireNoAuth } from "./hoc/RequireNoAuth";
+import WorkSpace from "./pages/Workspace/Workspace";
+import { RequireAuth } from "./shared/RequireAuth";
+import { RequireNoAuth } from "./shared/RequireNoAuth";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Donat3D } from "./components/Donat3D";
-const firebaseConfig = {
-	apiKey: "AIzaSyAfxteKn2ks9t0VahryPrCDK9HUNDZ7nNQ",
-	authDomain: "cryptodonat-9b4c7.firebaseapp.com",
-	projectId: "cryptodonat-9b4c7",
-	storageBucket: "cryptodonat-9b4c7.appspot.com",
-	messagingSenderId: "740701682510",
-	appId: "1:740701682510:web:c5262c59bc5138b8e4fc1f",
-	measurementId: "G-NMWD3CD7WW",
-};
-
-// Initialize Firebase
+import { DonationPage } from "./pages/Donation/DonationPage";
+import Overlay from "./pages/Overlay/Overlay";
+import icon from "../public/Favicon.ico";
+import { InitStore } from "./shared/InitStore";
+import { firebaseConfig } from "../config";
 export const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
 export const db = getFirestore(app);
-console.log(db);
 
-export const Context = React.createContext(null);
-
-function Overlay() {
-	return <Donat3D />;
-}
 function App() {
 	const [user] = useAuthState(auth);
 
 	return (
-		<Context.Provider value={{ app, auth, db }}>
+		<>
+			<Favicon url={icon} />
+			{user && <InitStore user={user} />}
 			<BrowserRouter>
 				<Routes>
 					<Route
@@ -55,18 +41,25 @@ function App() {
 							</RequireNoAuth>
 						}
 					/>
+
 					<Route
 						path='/workspace'
 						element={
-							<RequireAuth>
-								<WorkSpace />
-							</RequireAuth>
+							<RequireAuth>{user && <WorkSpace />}</RequireAuth>
 						}
 					/>
-					<Route path={"/:id/overlay"} element={<Overlay />} />
+					<Route path='user/:id' element={<DonationPage />} />
+					<Route
+						path='overlay/:id'
+						element={
+							<div id='overlay'>
+								<Overlay />
+							</div>
+						}
+					/>
 				</Routes>
 			</BrowserRouter>
-		</Context.Provider>
+		</>
 	);
 }
 ReactDOM.render(<App />, document.getElementById("app"));
