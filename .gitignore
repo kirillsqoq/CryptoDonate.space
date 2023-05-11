@@ -8,6 +8,7 @@ config.js
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.prettierignore
 
 # Dependency directories
 node_modules/
