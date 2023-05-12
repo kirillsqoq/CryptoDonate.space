@@ -1,9 +1,6 @@
 import { doc, setDoc } from "firebase/firestore";
-
 import { createTheme } from "@nextui-org/react";
 import { bitcoinToFiat, fiatToBitcoin } from "bitcoin-conversion";
-import React, { useRef, useState, useEffect, useContext } from "react";
-import { format } from "fecha";
 
 import { validate, getAddressInfo } from "bitcoin-address-validation";
 
@@ -115,6 +112,7 @@ export function updateShowMessageSetting(db, user, selected, value) {
 		}
 	}
 }
+
 export function updateAlertSetting(db, user, alertValue, value) {
 	if (alertValue !== "") {
 		if (value && value._document != null) {
@@ -138,113 +136,5 @@ export function createUserData(db, user, username, wallet) {
 			showMessage: true,
 			alert: true,
 		});
-	}
-}
-
-//
-
-export const lineRef = [
-	{
-		name: "Yesterday",
-		uv: 4000,
-		pv: 0,
-		amt: 2400,
-	},
-
-	{
-		name: "Today",
-		uv: 2390,
-		pv: 0,
-		amt: 2500,
-	},
-];
-export function ticketFilter(valueTickets) {
-	if (valueTickets) {
-		const arr = [];
-		const arrConfirm = [];
-		valueTickets.docs.map((doc) => arr.push(doc.data()));
-		for (let i = 0; i < arr.length; i++) {
-			if (arr[i].status == "confirm") {
-				arrConfirm.push(arr[i]);
-			}
-		}
-
-		return arrConfirm;
-	}
-	return null;
-}
-export function sum(confirmTickets, mounth) {
-	if (confirmTickets && mounth) {
-		const lastMounth = getLastMounthDonates(confirmTickets, mounth);
-		// console.log(lastMounth);
-		if (lastMounth.length == 0) {
-			return 0;
-		}
-		let sum = 0;
-		if (lastMounth.length > 0) {
-			// console.log(lastMounth);
-			for (let i = 0; i < lastMounth.length; i++) {
-				sum += Number(lastMounth[i].pv);
-			}
-		}
-
-		return sum;
-	}
-	return 0;
-}
-export function countDonate(confirmTickets, mounth) {
-	if (confirmTickets && mounth) {
-		return confirmTickets.length;
-	}
-	return 0;
-}
-
-export function getLastMounthDonates(confirmTickets, mounth) {
-	if (confirmTickets) {
-		// console.log(confirmTickets, mounth);
-		const arr = [];
-		for (let i = 0; i < confirmTickets.length; i++) {
-			const date = format(
-				new Date(Number(confirmTickets[i].time) * 1000),
-				"MMMM"
-			);
-			// console.log(date, mounth);
-			if (date == mounth) {
-				// console.log(date, mounth);
-
-				arr.push(confirmTickets[i]);
-			}
-		}
-
-		const stonksDays = [];
-
-		for (let i = 0; i < arr.length; i++) {
-			stonksDays.push(format(new Date(arr[i].time * 1000), "DD"));
-		}
-		const uniqueStonksDays = stonksDays.filter(function (item, pos) {
-			return stonksDays.indexOf(item) == pos;
-		});
-		// console.log(uniqueStonksDays);
-		function sumDay(day) {
-			const thisDay = [];
-			let sum = 0;
-			for (let i = 0; i < arr.length; i++) {
-				if (
-					format(new Date(arr[i].time * 1000), "DD") ==
-					uniqueStonksDays[day]
-				) {
-					sum = sum + Number(arr[i].usdAmount);
-				}
-			}
-			// console.log(uniqueStonksDays);
-			return { pv: sum, name: uniqueStonksDays[day] + " " + mounth };
-		}
-		const chartData = [];
-
-		for (let i = 0; i < uniqueStonksDays.length; i++) {
-			chartData.push(sumDay(i));
-		}
-		// console.log(chartData);
-		return chartData;
 	}
 }

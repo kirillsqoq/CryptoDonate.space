@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect, useContext } from "react";
-
 import { Flex } from "@adobe/react-spectrum";
-import { Card, Text } from "@nextui-org/react";
-import { LineChart, Line, Tooltip } from "recharts";
+import { Card, Spacer, Text } from "@nextui-org/react";
+import { LineChart, Line, Tooltip, YAxis } from "recharts";
 import { format } from "fecha";
 import { useStore } from "../../../../../store";
 import {
@@ -10,8 +9,7 @@ import {
 	sum,
 	countDonate,
 	ticketFilter,
-	lineRef,
-} from "../../../../../utils/utils";
+} from "../../../../../utils/stats";
 
 function CustomTooltip({ payload, label, active }) {
 	if (active) {
@@ -42,6 +40,7 @@ export function StatsTab() {
 						<AmountLabel />
 					</Flex>
 					<EarningLineChart />
+					<Spacer />
 					<MonthLabel />
 				</Card>
 			</Flex>
@@ -70,7 +69,7 @@ export function AmountLabel() {
 		(state) => state
 	);
 	const confirmTickets = ticketFilter(tickets_value);
-	const [mounth, setMounth] = useState(format(new Date(), "MMMM"));
+	const [month, setMounth] = useState(format(new Date(), "MMMM"));
 	return (
 		<>
 			<Text
@@ -81,7 +80,7 @@ export function AmountLabel() {
 					textGradient: "45deg, $blue500 -20%, $green500 50%",
 				}}
 				weight='bold'>
-				${sum(confirmTickets, mounth)}
+				${sum(confirmTickets, month)}
 			</Text>
 		</>
 	);
@@ -91,9 +90,8 @@ export function DonationsCount() {
 	const { auth, app, db, user, user_value, tickets_value } = useStore(
 		(state) => state
 	);
-
 	const confirmTickets = ticketFilter(tickets_value);
-	const [mounth, setMounth] = useState(format(new Date(), "MMMM"));
+	const [month, setMounth] = useState(format(new Date(), "MMMM"));
 
 	return (
 		<>
@@ -102,22 +100,22 @@ export function DonationsCount() {
 					h1
 					// size={100}
 					css={{
-						marginBottom: "$0",
 						textGradient: "45deg, $blue500 -20%, $blue400 50%",
 					}}
 					weight='bold'>
-					{countDonate(confirmTickets, mounth)}
+					{countDonate(confirmTickets, month)}
 				</Text>
 				<Text
 					h2
 					weight={"bold"}
 					css={{
-						marginTop: "$4",
-
-						marginLeft: "$8",
+						marginTop: "$6",
+						marginLeft: "$4",
 						textGradient: "45deg, $blue500 -20%, $blue400 50%",
 					}}>
-					donations
+					{countDonate(confirmTickets, month) == 1
+						? "donation"
+						: "donations"}
 				</Text>
 			</Flex>
 		</>
@@ -127,78 +125,23 @@ export function DonationsCount() {
 export function EarningLineChart() {
 	const { tickets_value } = useStore((state) => state);
 	const confirmTickets = ticketFilter(tickets_value);
-	const [mounth, setMounth] = useState(format(new Date(), "MMMM"));
+	const [month, setMonth] = useState(format(new Date(), "MMMM"));
 	return (
-		<>
-			{countDonate(confirmTickets, mounth) == 0 && (
-				<LineChart width={500} height={150} data={lineRef}>
-					<Tooltip
-						dataKey='name'
-						content={<CustomTooltip />}
-						cursor={false}
-					/>
-					<Line
-						type='monotone'
-						dataKey='pv'
-						stroke='#8884d8'
-						strokeWidth={5}
-					/>
-				</LineChart>
-			)}
-			{getLastMounthDonates(confirmTickets, mounth) &&
-				getLastMounthDonates(confirmTickets, mounth).length == 1 && (
-					<LineChart
-						width={500}
-						height={150}
-						data={[
-							{
-								name: "Yesterday",
-								pv: 0,
-							},
-						].concat(getLastMounthDonates(confirmTickets, mounth))}>
-						<Tooltip
-							dataKey='name'
-							content={<CustomTooltip />}
-							cursor={false}
-							// contentStyle={{
-							// 	border: "0px",
-							// 	backgroundColor:
-							// 		"rgba(0,0,0,0)",
-							// }}
-						/>
-						<Line
-							type='monotone'
-							dataKey='pv'
-							stroke='#8884d8'
-							strokeWidth={5}
-						/>
-					</LineChart>
-				)}
-
-			{getLastMounthDonates(confirmTickets, mounth) &&
-				getLastMounthDonates(confirmTickets, mounth).length > 1 && (
-					<LineChart
-						width={500}
-						height={150}
-						data={getLastMounthDonates(confirmTickets, mounth)}>
-						<Tooltip
-							dataKey='name'
-							content={<CustomTooltip />}
-							cursor={false}
-							// contentStyle={{
-							// 	border: "0px",
-							// 	backgroundColor:
-							// 		"rgba(0,0,0,0)",
-							// }}
-						/>
-						<Line
-							type='monotone'
-							dataKey='pv'
-							stroke='#8884d8'
-							strokeWidth={5}
-						/>
-					</LineChart>
-				)}
-		</>
+		<LineChart
+			width={550}
+			height={150}
+			data={getLastMounthDonates(confirmTickets, month)}>
+			<Tooltip
+				dataKey='name'
+				content={<CustomTooltip />}
+				cursor={false}
+			/>
+			<Line
+				type='monotone'
+				dataKey='pv'
+				stroke='#8884d8'
+				strokeWidth={5}
+			/>
+		</LineChart>
 	);
 }
