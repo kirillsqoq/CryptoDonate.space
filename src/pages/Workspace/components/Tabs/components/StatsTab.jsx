@@ -109,8 +109,8 @@ export function DonationsCount() {
 					h2
 					weight={"bold"}
 					css={{
-						marginTop: "$6",
-						marginLeft: "$4",
+						marginTop: "$5",
+						marginLeft: "$5",
 						textGradient: "45deg, $blue500 -20%, $blue400 50%",
 					}}>
 					{countDonate(confirmTickets, month) == 1

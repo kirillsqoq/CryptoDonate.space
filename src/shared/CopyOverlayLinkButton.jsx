@@ -50,7 +50,7 @@ export function CopyOverlayLinkButton(props) {
 								auto
 								size={props.size}>
 								<Copy marginX={"size-100"} />
-								Copy Overlay Link
+								Overlay Link
 							</Button>
 						</Tooltip>
 					)}

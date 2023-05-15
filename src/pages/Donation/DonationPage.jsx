@@ -94,7 +94,6 @@ function DonateCard() {
 }
 function DonateForm(props) {
 	const db = useStore((state) => state.db);
-
 	const {
 		valueFirestore,
 		ts,
@@ -109,7 +108,6 @@ function DonateForm(props) {
 		setAmount,
 	} = useDonationPageStore((state) => state);
 	const { setVisible, bindings } = useModal();
-
 	return (
 		<>
 			<Flex
@@ -231,7 +229,7 @@ function DonateForm(props) {
 				<Spacer />
 
 				<CryptoDonateLink />
-				<Spacer y={0.3} />
+				<Spacer y={0} />
 				<TwitterLink />
 			</Flex>
 		</>
@@ -311,7 +309,7 @@ function PaidTiket(props) {
 				<Spacer />
 				<Spacer />
 				<CryptoDonateLink />
-				<Spacer y={0.2} />
+				<Spacer y={0} />
 				<TwitterLink />
 				<Spacer />
 			</Flex>
@@ -410,8 +408,9 @@ function Header() {
 	return (
 		<Text
 			h1
-			size={45}
+			size={50}
 			css={{
+				marginRight: "$5",
 				marginTop: "$10",
 				alignItems: "center",
 				textGradient: "45deg, $blue500 -20%, $pink500 50%",

@@ -33,7 +33,7 @@ export function CopyPageLinkButton() {
 							content={"Don't forget to share this link"}>
 							<Button color={"secondary"} auto size='xs'>
 								<Copy marginEnd={"size-100"} />
-								Copy Donate Page Link
+								Profile Link
 							</Button>
 						</Tooltip>
 					)}
