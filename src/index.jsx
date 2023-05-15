@@ -24,6 +24,7 @@ export const db = getFirestore(app);
 
 function App() {
 	const [user] = useAuthState(auth);
+	console.log(user);
 
 	return (
 		<>

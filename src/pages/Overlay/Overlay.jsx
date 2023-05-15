@@ -12,8 +12,10 @@ import {
 	Spacer,
 	Loading,
 } from "@nextui-org/react";
-import { Flex } from "@adobe/react-spectrum";
+import { useAuthState } from "react-firebase-hooks/auth";
 
+import { Flex } from "@adobe/react-spectrum";
+import { ticketFilter } from "../../utils/stats";
 const darkThemeNext = createTheme({
 	type: "dark",
 	theme: {
@@ -23,34 +25,36 @@ const darkThemeNext = createTheme({
 	},
 });
 
-function ticketFilter(tickets_value) {
-	const arr = [];
-	const arrConfirm = [];
-	tickets_value.docs.map((doc) => arr.push(doc.data()));
-	for (let i = 0; i < arr.length; i++) {
-		if (arr[i].status == "confirm") {
-			arrConfirm.push(arr[i]);
-		}
-	}
-
-	return arrConfirm;
-}
 function DonateAlert(props) {
-	const { auth, app, db, setValue, setTickets, user_value, tickets_value } =
-		useStore((state) => state);
+	console.log(props.id);
+	const { auth, app, db, user_value, tickets_value } = useStore(
+		(state) => state
+	);
 
+	const [value, loading, error] = useDocument(
+		doc(getFirestore(app), "users", props.id),
+		{
+			snapshotListenOptions: { includeMetadataChanges: true },
+		}
+	);
+	const [valueTickets, loadingTickets, errorTickets] = useCollection(
+		collection(getFirestore(app), "users", props.id, "tickets/"),
+		{
+			snapshotListenOptions: { includeMetadataChanges: true },
+		}
+	);
 	const [count, setCount] = useState(0);
 	const [visibility, setVisibility] = useState("hidden");
 
 	useEffect(() => {
-		if (tickets_value) {
-			setCount(ticketFilter(tickets_value).length);
+		if (valueTickets) {
+			setCount(ticketFilter(valueTickets).length);
 		}
 	});
 	//
 	useEffect(() => {
-		console.log(tickets_value);
-	}, [tickets_value]);
+		console.log(valueTickets);
+	}, [valueTickets]);
 	//
 	useEffect(() => {
 		// console.log("new donate");
@@ -65,38 +69,49 @@ function DonateAlert(props) {
 		}
 	}, [visibility]);
 
-	// if (loading) {
-	// 	return (
-	// 		<>
-	// 			<Container>
-	// 				<Loading size='lg' />
-	// 			</Container>
-	// 		</>
-	// 	);
-	// }
+	if (loading) {
+		return (
+			<>
+				<Container>
+					<Loading size='lg' />
+				</Container>
+			</>
+		);
+	}
 
-	if (user_value.data() != undefined && tickets_value) {
-		const confirmTickets = ticketFilter(tickets_value);
+	if (value.data() != undefined && valueTickets) {
+		const confirmTickets = ticketFilter(valueTickets);
 
 		if (confirmTickets.length == 0) {
-			return <TestDonate />;
+			return (
+				<TestDonate
+					visibility={visibility}
+					value={value}
+					valueTickets={valueTickets}
+					confirmTickets={confirmTickets}
+				/>
+			);
 		}
-		return <LastDonate />;
+		return (
+			<LastDonate
+				visibility={visibility}
+				value={value}
+				valueTickets={valueTickets}
+				confirmTickets={confirmTickets}
+			/>
+		);
 	}
 
 	return <h1>Overlay not found</h1>;
 }
 
-export function TestDonate() {
-	const { auth, app, db, setValue, setTickets, user_value, tickets_value } =
-		useStore((state) => state);
-
+export function TestDonate(props) {
 	return (
 		<>
 			<>
 				<Container
 					css={{
-						visibility: visibility,
+						visibility: props.visibility,
 					}}>
 					<Container>
 						<>
@@ -128,7 +143,7 @@ export function TestDonate() {
 										</Text>
 									</Flex>
 
-									{user_value.data().showMessage == true && (
+									{props.value.data().showMessage == true && (
 										<Text h2>Test donate</Text>
 									)}
 								</Card>
@@ -141,15 +156,12 @@ export function TestDonate() {
 	);
 }
 
-export function LastDonate() {
-	const { auth, app, db, setValue, setTickets, user_value, tickets_value } =
-		useStore((state) => state);
-
+export function LastDonate(props) {
 	const [visibility, setVisibility] = useState("hidden");
 	return (
 		<>
-			{user_value.data().alert == true && (
-				<Container css={{ visibility: visibility }}>
+			{props.value.data().alert == true && (
+				<Container css={{ visibility: props.visibility }}>
 					<Container>
 						<>
 							<Container>
@@ -165,8 +177,9 @@ export function LastDonate() {
 											}}
 											weight='bold'>
 											{
-												confirmTickets[
-													confirmTickets.length - 1
+												props.confirmTickets[
+													props.confirmTickets
+														.length - 1
 												].name
 											}
 										</Text>
@@ -180,18 +193,20 @@ export function LastDonate() {
 											weight='bold'>
 											$
 											{
-												confirmTickets[
-													confirmTickets.length - 1
+												props.confirmTickets[
+													props.confirmTickets
+														.length - 1
 												].usdAmount
 											}{" "}
 										</Text>
 									</Flex>
 
-									{user_value.data().showMessage == true && (
+									{props.value.data().showMessage == true && (
 										<Text h2>
 											{
-												confirmTickets[
-													confirmTickets.length - 1
+												props.confirmTickets[
+													props.confirmTickets
+														.length - 1
 												].msg
 											}
 										</Text>
