@@ -10,6 +10,7 @@ import {
 	countDonate,
 	ticketFilter,
 } from "../../../../../utils/stats";
+import { getI18nText } from "../../../../../i18n";
 
 function CustomTooltip({ payload, label, active }) {
 	if (active) {
@@ -87,9 +88,7 @@ export function AmountLabel() {
 }
 
 export function DonationsCount() {
-	const { auth, app, db, user, user_value, tickets_value } = useStore(
-		(state) => state
-	);
+	const { tickets_value } = useStore((state) => state);
 	const confirmTickets = ticketFilter(tickets_value);
 	const [month, setMounth] = useState(format(new Date(), "MMMM"));
 

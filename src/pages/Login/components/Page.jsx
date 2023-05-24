@@ -279,17 +279,6 @@ export function Page() {
 						Sign in with Email
 					</Button>
 					<Spacer y={6} />
-
-					{/* <Link
-						css={{}}
-						icon
-						block
-						color='primary'
-						onClick={() =>
-							window.open("https://twitter.com/_cryptodonate_")
-						}>
-						Twitter
-					</Link> */}
 					<TwitterLink />
 					<div id='footerlogin'></div>
 				</div>
